@@ -4,9 +4,26 @@ import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 
 const Home = () => {
-  const { products, loading } = useProducts()
+  const { products, featuredProducts, loading } = useProducts()
 
-  const featuredProducts = products.filter(p => p.featured).slice(0, 6)
+  // Mostrar destacados si existen, de lo contrario últimos productos activos (máx 3)
+  const shownProducts = (featuredProducts && featuredProducts.length > 0)
+    ? featuredProducts.slice(0, 3)
+    : products.slice(0, 3)
+
+  // Seleccionar imagen aleatoria de un producto de cada categoría
+  const categories = [
+    { key: 'mujer', title: 'Mujer', link: '/mujer' },
+    { key: 'hombre', title: 'Hombre', link: '/hombre' },
+    { key: 'accesorios', title: 'Accesorios', link: '/accesorios' }
+  ]
+
+  const getRandomCategoryImage = (key) => {
+    const list = (products || []).filter(p => (p.category || '').toLowerCase() === key)
+    if (!list.length) return '/images/placeholder.jpg'
+    const random = list[Math.floor(Math.random() * list.length)]
+    return random.image || (Array.isArray(random.images) && random.images[0]) || '/images/placeholder.jpg'
+  }
 
   return (
     <div>
@@ -29,21 +46,14 @@ const Home = () => {
             <p className="text-gray-600">Explora nuestras colecciones exclusivas</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <CategoryCard 
-              image="/images/categories/Mujer/vestido 7.jpg"
-              title="Mujer"
-              link="/mujer"
-            />
-            <CategoryCard 
-              image="/images/categories/Hombre/BUSO1.jpg"
-              title="Hombre"
-              link="/hombre"
-            />
-            <CategoryCard 
-              image="/images/categories/Accesorios/Zapatos Hombre.jpg"
-              title="Accesorios"
-              link="/accesorios"
-            />
+            {categories.map(cat => (
+              <CategoryCard
+                key={cat.key}
+                image={getRandomCategoryImage(cat.key)}
+                title={cat.title}
+                link={cat.link}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -61,9 +71,14 @@ const Home = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProducts.map(product => (
+              {shownProducts.map(product => (
                 <ProductCard key={product._id} product={product} />
               ))}
+            </div>
+          )}
+          {!loading && shownProducts.length === 0 && (
+            <div className="text-center text-gray-600 mt-6">
+              No hay productos disponibles por ahora.
             </div>
           )}
           <div className="text-center mt-8">
