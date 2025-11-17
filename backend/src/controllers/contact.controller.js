@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer')
+const { createEmailTransporter } = require('../config/email')
 
 // @desc    Enviar mensaje de contacto
 // @route   POST /api/contact/send
@@ -11,14 +11,8 @@ exports.sendContactMessage = async (req, res) => {
       return res.status(400).json({ message: 'Todos los campos obligatorios deben estar completos' })
     }
 
-    // Configurar transporter de nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    })
+    // Crear transporter con OAuth2
+    const transporter = await createEmailTransporter()
 
     const mensajeCompleto = `
 Nuevo mensaje de contacto desde Áurea Virtual Shop

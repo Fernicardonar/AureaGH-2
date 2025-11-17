@@ -13,6 +13,7 @@ npm run dev
 
 - `npm run dev` - Ejecutar con nodemon (desarrollo)
 - `npm start` - Ejecutar en producción
+- `npm run test:email` - Probar configuración de email OAuth2
 - Seed (catálogo embebido en código)
   - `npm run seed` (por defecto aditivo)
   - `npm run seed:additive`
@@ -204,25 +205,42 @@ PORT=3001
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/liliamboutique
 JWT_SECRET=mi_secreto_super_seguro
 JWT_EXPIRE=30d
+
+# Email - Método 1: Contraseña de aplicación (simple pero menos seguro)
 EMAIL_USER=tu_email@gmail.com
 EMAIL_PASS=contraseña_aplicacion_gmail
+
+# Email - Método 2: OAuth2 (RECOMENDADO - más seguro)
+# Sigue la guía en src/config/OAUTH2_SETUP.md
+GMAIL_CLIENT_ID=tu_client_id.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=tu_client_secret
+GMAIL_REFRESH_TOKEN=tu_refresh_token
+
 FRONTEND_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-### MongoDB Atlas
+### Configuración de Email
 
-1. Crear cuenta en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Crear cluster gratuito
-3. Configurar Network Access (0.0.0.0/0)
-4. Crear usuario de base de datos
-5. Obtener connection string
+La aplicación soporta dos métodos de autenticación de email:
 
-### Gmail para Nodemailer
-
+#### Método 1: Contraseña de Aplicación (Rápido)
 1. Habilitar verificación en 2 pasos en Gmail
 2. Generar contraseña de aplicación
-3. Usar esa contraseña en `EMAIL_PASS`
+3. Configurar `EMAIL_PASS` en `.env`
+
+#### Método 2: OAuth2 (Recomendado - Más Seguro) ⭐
+1. Sigue la guía detallada en: `src/config/OAUTH2_SETUP.md`
+2. Configura las 3 variables OAuth2 en `.env`
+3. Ejecuta `npm run test:email` para verificar
+
+**Ventajas de OAuth2:**
+- ✅ Más seguro (no expones contraseñas)
+- ✅ Tokens temporales que se renuevan automáticamente
+- ✅ Revocable desde Google Cloud Console
+- ✅ Recomendado por Google para producción
+
+La aplicación usa OAuth2 automáticamente si las credenciales están configuradas, de lo contrario usa contraseña de aplicación como fallback.
 
 ## 🌱 Seed de Datos y Round‑Trip con JSON
 
